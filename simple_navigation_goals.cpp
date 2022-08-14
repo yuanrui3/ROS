@@ -14,22 +14,17 @@
 #include <boost/random/discrete_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <limits>
+#include <cmath>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 typedef boost::mt19937 base_generator;
 
-public:
 //Target_distribution
 static int8_t target_map[1800] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,100,100,100,0,0,0,0,0,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,0,0,0,0,0,0,100,100,100,100,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,100,100,100,100,100,100,0,100,100,100,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,100,100,100,100,100,100,100,100,100,100,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,100,100,100,100,100,100,100,100,100,100,0,0,0,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,0,0,0,0,0,0,0,0,0,100,100,100,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 ;
-
+double alpha[1800];
+double beta[1800];
 std::vector<double> aoi_coord;
-for (i=0; i<1800; i++) {
-	if (target_map[i]==100) aoi_coord.push_back(i);
-	}
-
-double alpha[1800]={[0 . . . 1799] = 1};
-double beta[1800]={[0 . . . 1799] = 1};
 std::vector<double> visited_aoi;
 int exploration_map[1800]={};//unexplored:0; target_found:1; target_not_found:-1 
 Grid field;
@@ -40,24 +35,25 @@ int idx, row, col;
 static int reward = 10;
 int get_reward = 0;
 int no_reward = 0;
-int num_grids = field.width*field.height;
+int num_grids = field.map_width*field.map_height;
 int num_targets = 242;
-double diagonal = sqrt(field.width**2+field.height**2);
+double diagonal = sqrt(pow(field.map_width,2)+pow(field.map_height,2));
 
 //Methods
 bool edge_filtering= 1;
 int method = 1;
 	
-void imbinarize(double alpha[1800], double &beta[1800]) {
-	double alpha_min = *min_element(alpha,alpha+1800);
-	double alpha_max = *max_element(alpha,alpha+1800)
+double * imbinarize(double alpha[1800], double beta[1800]) {
+	double alpha_min = *std::min_element(alpha,alpha+1800);
+	double alpha_max = *std::max_element(alpha,alpha+1800);
 	for (int i =0; i<1800; i++) alpha[i]=(alpha[i]-alpha_min)/(alpha_max-alpha_min);
 	for (int i =0; i<1800; i++) {
 		if (alpha[i]>0.05) beta[i]=1;
 		}
+  return beta;
 	}
 	
-double ws_distance(std::vector<int> a, std::vector<double> b) {
+double ws_distance(std::vector<double> a, std::vector<double> b) {
 	std::vector<double> aw(a.size(),1);
 	std::vector<double> bw(b.size(),1);
 	return wasserstein(a,aw,b,bw);
@@ -89,18 +85,18 @@ int ThompsonSampling(int goal_idx) {
 		else if (get_reward>0) {
 			boost::random::beta_distribution<> dist(alpha[i], beta[i]);	
   			double prior = dist(gen);
-			double dist_penalty = sqrt((getC(i)-goal_col)**2+(getR(i)-         goal_row))/diagonal;
+			double dist_penalty = sqrt(pow((field.getC(i)-goal_col),2)+pow((field.getR(i)-goal_row),2))/diagonal;
 			theta[i]=prior+(1-dist_penalty)*get_reward;
 			}
 		else {
 			boost::random::beta_distribution<> dist(alpha[i], beta[i]);	
   			double prior = dist(gen);
-			double dist_penalty = sqrt((getC(i)-goal_col)**2+(getR(i)-         goal_row))/diagonal;
+			double dist_penalty = sqrt(pow((field.getC(i)-goal_col),2)+pow((field.getR(i)-goal_row),2))/diagonal;
 			theta[i]=prior+(1-dist_penalty)/no_reward;
 			}
 		}
-	int max = *max_element(theta, theta+1800);
-	return find(theta, theta+1800, max) - theta;
+	int max = *std::max_element(theta, theta+1800);
+	return std::find(theta, theta+1800, max) - theta;
 	}
 
 /*boost::random::beta_distribution<> dist(alpha, beta);	
@@ -108,7 +104,6 @@ int ThompsonSampling(int goal_idx) {
   prior = dist(gen);
 */
 
-bool method = true;//1:TS;0:Sweeping
 int goal_idx = 0;
 geometry_msgs::Point position;
 geometry_msgs::Quaternion orientation;
@@ -125,6 +120,12 @@ void poseReceived(const geometry_msgs::PoseWithCovarianceStamped& msg) {
 }
 
 int main(int argc, char** argv){
+  for (int i=0; i<1800; i++) {
+	if (target_map[i]==100) aoi_coord.push_back(i);
+  alpha[i] = 1;
+  beta[i] = 1;
+	}
+  
   ros::init(argc, argv, "simple_navigation_goals");
   ros::NodeHandle n;
   ros::Subscriber sub = n.subscribe("/amcl_pose",1000,&poseReceived);
@@ -174,7 +175,7 @@ int main(int argc, char** argv){
   while (visited_aoi.size() <= num_targets) {
   goal.target_pose.header.stamp = ros::Time::now();
   goal.target_pose.pose.position.x = field.getX(field.getC(goal_idx));  
-  goal.target_pose.pose.position.y = field.getY(field,getR(goal_idx));
+  goal.target_pose.pose.position.y = field.getY(field.getR(goal_idx));
   goal.target_pose.pose.orientation.z = 1.0;
   goal.target_pose.pose.orientation.w = 0;
 
@@ -197,7 +198,8 @@ int main(int argc, char** argv){
   n.getParam("/move_base/TrajectoryPlannerROS/max_vel_x", maxvel);
   n.getParam("min_vel_x", minvel);
   ROS_INFO("%f%f",maxvel,minvel);*/
-  double ws_distance = ws_distance(aoi_coord, visited_aoi);
+  double ws_d = ws_distance(aoi_coord, visited_aoi);
+  ROS_INFO_STREAM("distance: "<<ws_d);
   ros::spinOnce();
   return 0;
 }

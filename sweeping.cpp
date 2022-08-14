@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
-#include <Grid.>
+#include <Grid.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -20,23 +20,24 @@ int main(int argc, char** argv){
   double prev_X;
   double prev_Y;
   int sweep_idx;
+  Grid field;
   //we'll send a goal to the robot to move 1 meter forward
   goal.target_pose.header.frame_id = "map";
-  for (int i=0; i<Grid.map_height; i++) {
-  	for (int j=0; j<Grid.map_width; j++) {	
+  for (int i=0; i<field.map_height; i++) {
+  	for (int j=0; j<field.map_width; j++) {	
 	  goal.target_pose.header.stamp = ros::Time::now();
 	  if (i==0&&j==0) {
-		  goal.target_pose.pose.position.x = Grid.getX(0);  
-		  goal.target_pose.pose.position.y = Grid.getY(0);
+		  goal.target_pose.pose.position.x = field.getX(0);  
+		  goal.target_pose.pose.position.y = field.getY(0);
 		  goal.target_pose.pose.orientation.z = 0;
 		  goal.target_pose.pose.orientation.w = 1;
 		  prev_X=goal.target_pose.pose.position.x;
 		  prev_Y=goal.target_pose.pose.position.y;
 		  continue;
 		  }
-	  if (i%2==0) sweep_idx=i*Grid.map_width+j;
-	  else sweep_id=(i+1)*Grid.map_width-j;
-	  goal = goalPose(Grid.getC(sweep_idx),Grid.getR(sweep_idx),prev_X,prev_Y);
+	  if (i%2==0) sweep_idx=i*field.map_width+j;
+	  else sweep_idx=(i+1)*field.map_width-j;
+	  goal.target_pose.pose = field.goalPose(field.getC(sweep_idx),field.getR(sweep_idx),prev_X,prev_Y);
 
 	  ROS_INFO("Sending goal");
 	  ac.sendGoal(goal);
