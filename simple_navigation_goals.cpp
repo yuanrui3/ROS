@@ -26,7 +26,7 @@ double alpha[1800];
 double beta[1800];
 std::vector<double> aoi_coord;
 std::vector<double> visited_aoi;
-int exploration_map[1800]={};//unexplored:0; target_found:1; target_not_found:-1 
+int exploration_map[1800]={0};//unexplored:0; target_found:1; target_not_found:-1 
 Grid field;
 double X,Y;
 int idx, row, col;
@@ -43,14 +43,14 @@ double diagonal = sqrt(pow(field.map_width,2)+pow(field.map_height,2));
 bool edge_filtering= 1;
 int method = 1;
 	
-double * imbinarize(double alpha[1800], double beta[1800]) {
-	double alpha_min = *std::min_element(alpha,alpha+1800);
-	double alpha_max = *std::max_element(alpha,alpha+1800);
-	for (int i =0; i<1800; i++) alpha[i]=(alpha[i]-alpha_min)/(alpha_max-alpha_min);
+void imbinarize(double a[1800]) {
+	double alpha_min = *std::min_element(a,a+1800);
+	double alpha_max = *std::max_element(a,a+1800);
+	for (int i =0; i<1800; i++) a[i]=(a[i]-alpha_min)/(alpha_max-alpha_min);
 	for (int i =0; i<1800; i++) {
-		if (alpha[i]>0.05) beta[i]=1;
+		if (a[i]>0.05) beta[i]=1;
 		}
-  return beta;
+  	return;
 	}
 	
 double ws_distance(std::vector<double> a, std::vector<double> b) {
@@ -120,27 +120,28 @@ void poseReceived(const geometry_msgs::PoseWithCovarianceStamped& msg) {
 }
 
 int main(int argc, char** argv){
+//initialization
   for (int i=0; i<1800; i++) {
 	if (target_map[i]==100) aoi_coord.push_back(i);
-  alpha[i] = 1;
-  beta[i] = 1;
+	alpha[i] = 1;
+	beta[i] = 1;
 	}
   
   ros::init(argc, argv, "simple_navigation_goals");
+  //read the initial pose
   ros::NodeHandle n;
   ros::Subscriber sub = n.subscribe("/amcl_pose",1000,&poseReceived);
   while (!newmsg) ros::spinOnce();
-  //newmsg=false;
   col = field.getRow(position.x);
   row = field.getCol(position.y);
-  idx = field.getIndex(row,col);
+  idx = field.getIndex(row,col);/*
   if (target_map[idx] == 0) {
   	occupied = false;
   	ROS_INFO("No target");
   	} else {
   	occupied = true;
   	ROS_INFO("Target found");
-  	}
+  	}*/
   //tell the action client that we want to spin a thread by default
   MoveBaseClient ac("move_base", true);
 
@@ -190,7 +191,11 @@ int main(int argc, char** argv){
     ROS_INFO("The base failed");
 
   visited_aoi.push_back(goal_idx);
+  if (target_map[goal_idx]==0) exploration_map[goal_idx] = -1;
+  else exploration_map[goal_idx] = 1;
+  
   goal_idx = ThompsonSampling(goal_idx);
+  if (edge_filtering) imbinarize(alpha);
   }
     
     /* (param-velocity-adjustment-approach deprecated

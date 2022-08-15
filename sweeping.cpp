@@ -17,8 +17,8 @@ int main(int argc, char** argv){
   }
   
   move_base_msgs::MoveBaseGoal goal;
-  double prev_X;
-  double prev_Y;
+  //double prev_X;
+  //double prev_Y;
   int sweep_idx;
   Grid field;
   //we'll send a goal to the robot to move 1 meter forward
@@ -31,14 +31,26 @@ int main(int argc, char** argv){
 		  goal.target_pose.pose.position.y = field.getY(0);
 		  goal.target_pose.pose.orientation.z = 0;
 		  goal.target_pose.pose.orientation.w = 1;
-		  prev_X=goal.target_pose.pose.position.x;
-		  prev_Y=goal.target_pose.pose.position.y;
+		  //prev_X=goal.target_pose.pose.position.x;
+		  //prev_Y=goal.target_pose.pose.position.y;
 		  continue;
 		  }
 	  if (i%2==0) sweep_idx=i*field.map_width+j;
 	  else sweep_idx=(i+1)*field.map_width-j;
-	  goal.target_pose.pose = field.goalPose(field.getC(sweep_idx),field.getR(sweep_idx),prev_X,prev_Y);
-
+	  if (sweep_idx%field.map_width==field.map_width-1) {
+	  	goal.target_pose.pose.orientation.z = sin(PI/4);
+		goal.target_pose.pose.orientation.w = cos(PI/4);
+		}
+	  else if (sweep_idx%(2*field.map_width)>=0 && sweep_idx%(2*field.map_width)<field.map_width-1) {
+	  	goal.target_pose.pose.orientation.z = 0;
+		goal.target_pose.pose.orientation.w = 1;
+		}
+	  else {
+	  	goal.target_pose.pose.orientation.z = 1;
+		goal.target_pose.pose.orientation.w = 0;
+		}
+	  goal.target_pose.pose.position.x = field.getX(field.getR(sweep_idx));  
+          goal.target_pose.pose.position.y = field.getY(field.getC(sweep_idx));
 	  ROS_INFO("Sending goal");
 	  ac.sendGoal(goal);
 
