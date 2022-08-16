@@ -1,0 +1,15 @@
+Notes for future developers:
+The two red D-link routers have been reset, the name and password can be found on their back.
+Dingo 02 
+Passwd: Robot12345
+Paired controller: 03
+Passwd-less access enabled
+Manipulator installed
+Dingo 03
+Passwd: clearpath
+Paired controller: 02
+Has Dingo package installed
+
+risc-ThinkPad
+Passwd: Robot12345
+ROS distro: Noetic
