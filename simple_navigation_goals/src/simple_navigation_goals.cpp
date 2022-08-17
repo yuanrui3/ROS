@@ -210,7 +210,7 @@ int main(int argc, char** argv){
   else exploration_map[goal_idx] = 1;
   
   goal_idx = ThompsonSampling(goal_idx);
-  //if (edge_filtering) imbinarize(alpha);
+  if (edge_filtering) imbinarize(alpha);
   ws_d = ws_distance(aoi_coord, visited_coord);
   ROS_INFO_STREAM("target_found: "<<target_found<<"distance: "<<ws_d<<"visited: "<<visited_coord.size());
   
