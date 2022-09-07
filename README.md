@@ -3,7 +3,6 @@ The directory <simple_navigation_goals> contains the ROS package. There is no ne
 
 Inside <src> directory, I have provided four ROS nodes. <occupancy_grid_map> publishes ROS message occupancy_grid_map. It's not useful for now. 
 <test_goal> tests goal sending command. 
- 
 <sweeping> runs sweeping algorithm. 
 <simple_navigation_goals> runs the Thompson Sampling algorithm.
 
